@@ -12,3 +12,7 @@ def login():
 @app.route('/register')
 def register():
     return render_template('dashboard/authentication-register.html')
+
+@app.route('/index')
+def index():
+    return render_template('dashboard/index.html')
