@@ -2,6 +2,8 @@ import os
 from functools import wraps
 import jwt
 import datetime
+
+from bson import ObjectId
 from flask import render_template, Blueprint, request, jsonify, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
 from database.mongo import mongo
@@ -30,13 +32,19 @@ def login():
             # Générer un token JWT
             payload = {
                 'user_id': str(user['_id']),
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)  # Expiration du token (5 heure)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)  # Expiration du token (5 heures)
             }
             token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
             # Ajouter le token dans la session
             session['token'] = token
-            session['is_logged_in'] = True  # Ajout d'un champ booléen pour savoir si l'utilisateur est connecté
+            session['is_logged_in'] = True  # Ajouter un champ booléen pour savoir si l'utilisateur est connecté
+
+            # Mettre à jour le statut de connexion dans la base de données
+            mongo.db.users.update_one(
+                {"_id": user['_id']},
+                {"$set": {"is_logged_in": True}}  # Mettre à jour le champ 'is_logged_in' à True
+            )
 
             # Message de succès et redirection
             flash('Connexion réussie!', 'success')
@@ -119,13 +127,34 @@ def index(user_id):
     return render_template('dashboard/index.html', user_id=user_id)
 
 @web.route('/logout')
-def logout():
-    # Vider la session
-    session.pop('token', None)
-    session.pop('is_logged_in', None)
+@token_required
+def logout(user_id):
+    # Convertir l'user_id en ObjectId si nécessaire
+    try:
+        user_id = ObjectId(user_id)  # Convertir le string en ObjectId
+    except Exception as e:
+        flash('ID de l\'utilisateur invalide.', 'danger')
+        return redirect(url_for('web.login'))
 
-    # Message de déconnexion
-    flash('Vous êtes déconnecté avec succès.', 'success')
+    # Récupérer l'utilisateur à partir de la base de données
+    user = mongo.db.users.find_one({"_id": user_id})
+
+    if user:
+        # Mettre à jour le statut de l'utilisateur dans la base de données
+        mongo.db.users.update_one(
+            {"_id": user_id},
+            {"$set": {"is_logged_in": False}}  # Changer le statut 'is_logged_in' à False
+        )
+
+        # Vider la session
+        session.pop('token', None)
+        session.pop('is_logged_in', None)
+
+        # Message de déconnexion
+        flash('Vous êtes déconnecté avec succès.', 'success')
+    else:
+        flash('Utilisateur non trouvé.', 'danger')
 
     # Rediriger vers la page de connexion
     return redirect(url_for('web.login'))
+
