@@ -46,8 +46,6 @@ def login():
                 {"$set": {"is_logged_in": True}}  # Mettre à jour le champ 'is_logged_in' à True
             )
 
-            # Message de succès et redirection
-            flash('Connexion réussie!', 'success')
             return redirect(url_for('web.index'))  # Rediriger vers la page d'accueil
 
         # Si l'email ou le mot de passe est incorrect
