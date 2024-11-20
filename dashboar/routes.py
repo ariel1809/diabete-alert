@@ -19,7 +19,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default_key_for_dev')
 # Route pour la page de connexion
 @web.route('/')
 def accueil():
-    return render_template("Accueil/index.html")
+    return render_template("accueil.html")
 
 @web.route('/login', methods=['GET', 'POST'])
 def login():
@@ -54,9 +54,9 @@ def login():
 
         # Si l'email ou le mot de passe est incorrect
         flash('Email ou mot de passe incorrect', 'danger')
-        return render_template('dashboard/authentication-login.html')  # Renvoyer le formulaire avec un message d'erreur
+        return render_template('authentication-login.html')  # Renvoyer le formulaire avec un message d'erreur
 
-    return render_template('dashboard/authentication-login.html')
+    return render_template('authentication-login.html')
 
 
 # Route pour l'inscription
@@ -74,12 +74,12 @@ def register():
         # Vérifier si les mots de passe correspondent
         if password != confirm_password:
             flash('Les mots de passe ne correspondent pas.', 'danger')
-            return render_template('dashboard/authentication-register.html', form_data=form_data)
+            return render_template('authentication-register.html', form_data=form_data)
 
         # Vérifier si l'utilisateur existe déjà
         if mongo.db.users.find_one({"email": email}):
             flash('Cet email est déjà utilisé.', 'danger')
-            return render_template('dashboard/authentication-register.html', form_data=form_data)
+            return render_template('authentication-register.html', form_data=form_data)
 
         # Ajouter l'utilisateur
         user = User(name, email, password)
@@ -89,7 +89,7 @@ def register():
         flash('Inscription réussie ! Connectez-vous pour continuer.', 'success')
         return redirect(url_for('web.login'))
 
-    return render_template('dashboard/authentication-register.html', form_data={})
+    return render_template('authentication-register.html', form_data={})
 
 
 # Fonction de vérification du token
@@ -126,7 +126,7 @@ def token_required(f):
 @web.route('/index')
 @token_required
 def index(user_id):
-    return render_template('dashboard/index.html', user_id=user_id)
+    return render_template('index.html', user_id=user_id)
 
 @web.route('/logout')
 @token_required
