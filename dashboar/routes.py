@@ -17,6 +17,10 @@ web = Blueprint('web', __name__)
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_key_for_dev')
 
 # Route pour la page de connexion
+@web.route('/')
+def accueil():
+    return render_template("Accueil/index.html")
+
 @web.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
