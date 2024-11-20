@@ -1,18 +1,17 @@
-from flask import Flask, request, jsonify, render_template
+from flask import render_template, Blueprint
 
-
-# Créer une instance de l'application Flask
-app = Flask(__name__)
+# Créer un blueprint pour les routes
+web = Blueprint('route', __name__)
 
 # Route pour la page du chatbot
-@app.route('/login')
+@web.route('/login')
 def login():
     return render_template('dashboard/authentication-login.html')
 
-@app.route('/register')
+@web.route('/register')
 def register():
     return render_template('dashboard/authentication-register.html')
 
-@app.route('/index')
+@web.route('/index')
 def index():
     return render_template('dashboard/index.html')

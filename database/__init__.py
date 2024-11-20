@@ -1,0 +1,1 @@
+from .mongo import init_db
