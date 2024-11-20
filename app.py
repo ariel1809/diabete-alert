@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from dashboar import web
 from config import Config
@@ -12,6 +13,7 @@ init_db(app)
 
 # Enregistrer le blueprint des routes
 app.register_blueprint(web)
+app.secret_key = os.getenv('SECRET_KEY', 'default_key_for_dev')
 
 if __name__ == '__main__':
     app.run(debug=True)

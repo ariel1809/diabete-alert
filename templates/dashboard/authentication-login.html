@@ -5,47 +5,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DiabeteAlert</title>
-    <link href="{{ url_for('static', filename='dashboard/images/logos/logoweb.png') }}" rel="shortcut icon" type="image/png">
-    <link href="{{ url_for('static', filename='dashboard/css/styles.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='dashboard/images/logos/logoweb.png') }}" rel="shortcut icon" type="image/png">
+  <link href="{{ url_for('static', filename='dashboard/css/styles.min.css') }}" rel="stylesheet">
 </head>
 
 <body>
-  <!--  Body Wrapper -->
+  <!-- Body Wrapper -->
   <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
     data-sidebar-position="fixed" data-header-position="fixed">
-    <div
-      class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
       <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
           <div class="col-md-8 col-lg-6 col-xxl-3">
             <div class="card mb-0">
               <div class="card-body">
-                <a href="{{ url_for('route.index') }}" class="text-nowrap logo-img text-center d-block py-3 w-100">
+                <a href="{{ url_for('web.index') }}" class="text-nowrap logo-img text-center d-block py-3 w-100">
                     <img src="{{ url_for('static', filename='dashboard/images/logos/logoweb.png') }}" width="180" alt="">
                 </a>
                 <p class="text-center">Prévenir le diabète</p>
-                <form>
+
+                <!-- Afficher les messages flash ici -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} flash-message">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Formulaire de connexion -->
+                <form method="POST" action="{{ url_for('web.login') }}">
                   <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Username</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <label for="exampleInputEmail1" class="form-label">Username (Email)</label>
+                    <!-- Utiliser request.form['email'] pour conserver la valeur saisie par l'utilisateur -->
+                    <input type="email" class="form-control" id="exampleInputEmail1" name="email" value="{{ request.form['email'] if request.form.get('email') else '' }}" required>
                   </div>
                   <div class="mb-4">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <!-- Utiliser request.form['password'] pour conserver la valeur saisie par l'utilisateur -->
+                    <input type="password" class="form-control" id="exampleInputPassword1" name="password" value="{{ request.form['password'] if request.form.get('password') else '' }}" required>
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="form-check">
                       <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked" checked>
                       <label class="form-check-label text-dark" for="flexCheckChecked">
-                        Remeber this Device
+                        Remember this device
                       </label>
                     </div>
-                    <a class="text-primary fw-bold" href="{{ url_for('route.index') }}">Forgot Password ?</a>
+                    <a class="text-primary fw-bold" href="{{ url_for('web.index') }}">Forgot Password ?</a>
                   </div>
-                  <a href="{{ url_for('route.index') }}" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2" style="background-color: #2596be;">Sign In</a>
+                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2" style="background-color: #2596be;">Sign In</button>
                   <div class="d-flex align-items-center justify-content-center">
                     <p class="fs-4 mb-0 fw-bold">New to Modernize?</p>
-                    <a class="text-primary fw-bold ms-2" href="{{ url_for('route.register') }}">Create an account</a>
+                    <a class="text-primary fw-bold ms-2" href="{{ url_for('web.register') }}">Create an account</a>
                   </div>
                 </form>
               </div>
@@ -55,6 +67,17 @@
       </div>
     </div>
   </div>
+
+  <script>
+  // Cacher les messages flash après 3 secondes
+  setTimeout(function() {
+    var flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach(function(message) {
+      message.style.display = 'none'; // Cacher le message
+    });
+  }, 3000); // Délai de 3 secondes
+</script>
+
   <script src="{{ url_for('static', filename='dashboard/libs/jquery/dist/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 </body>
