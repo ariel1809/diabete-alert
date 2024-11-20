@@ -431,9 +431,11 @@ strong {
 .timeline h3, 
 .timeline p {
   padding: 10px 30px;
+  justify-content: center;
 } 
 
 .timeline h3 {
+  text-align: center;
   background: var(--dark-color);
 }
 
