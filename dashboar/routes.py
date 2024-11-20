@@ -7,7 +7,6 @@ from werkzeug.security import check_password_hash
 from database.mongo import mongo
 
 from models.model import User
-from database.mongo import mongo
 
 # Créer un blueprint pour les routes
 web = Blueprint('web', __name__)
@@ -31,10 +30,9 @@ def login():
             # Générer un token JWT
             payload = {
                 'user_id': str(user['_id']),
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Expiration du token (1 heure)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)  # Expiration du token (5 heure)
             }
             token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-            token = token.decode('utf-8')  # Convertir le token en chaîne de caractères si nécessaire
 
             # Ajouter le token dans la session
             session['token'] = token
@@ -119,3 +117,15 @@ def token_required(f):
 @token_required
 def index(user_id):
     return render_template('dashboard/index.html', user_id=user_id)
+
+@web.route('/logout')
+def logout():
+    # Vider la session
+    session.pop('token', None)
+    session.pop('is_logged_in', None)
+
+    # Message de déconnexion
+    flash('Vous êtes déconnecté avec succès.', 'success')
+
+    # Rediriger vers la page de connexion
+    return redirect(url_for('web.login'))
