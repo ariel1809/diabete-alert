@@ -36,9 +36,9 @@
                 <!-- Formulaire de connexion -->
                 <form method="POST" action="{{ url_for('web.login') }}">
                   <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Username (Email)</label>
+                    <label for="exampleInputEmail1" class="form-label">Email</label>
                     <!-- Utiliser request.form['email'] pour conserver la valeur saisie par l'utilisateur -->
-                    <input type="email" class="form-control" id="exampleInputEmail1" name="email" value="{{ request.form['email'] if request.form.get('email') else '' }}" required>
+                    <input placeholder="steve.kuetche@institutsainjean.org" type="email" class="form-control" id="exampleInputEmail1" name="email" value="{{ request.form['email'] if request.form.get('email') else '' }}" required>
                   </div>
                   <div class="mb-4">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
@@ -69,7 +69,6 @@
   </div>
 
   <script>
-  // Cacher les messages flash après 3 secondes
   setTimeout(function() {
     var flashMessages = document.querySelectorAll('.flash-message');
     flashMessages.forEach(function(message) {

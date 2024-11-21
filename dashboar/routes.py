@@ -160,3 +160,7 @@ def logout(user_id):
     # Rediriger vers la page de connexion
     return redirect(url_for('web.login'))
 
+@web.route('/prediction')
+@token_required
+def prediction(user_id):
+    return render_template('prediction.html')
