@@ -1,7 +1,10 @@
 import os
 from functools import wraps
+
+import joblib
 import jwt
 import datetime
+import pandas as pd
 
 from bson import ObjectId
 from flask import render_template, Blueprint, request, jsonify, redirect, url_for, flash, session
@@ -15,6 +18,9 @@ web = Blueprint('web', __name__)
 
 # Clé secrète pour générer le JWT
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_key_for_dev')
+
+# Charger le modèle ML
+model = joblib.load("diabetes.pkl")
 
 # Route pour la page de connexion
 @web.route('/')
@@ -164,3 +170,40 @@ def logout(user_id):
 @token_required
 def prediction(user_id):
     return render_template('prediction.html')
+
+
+@web.route("/predict", methods=["POST"])
+def predict():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        # Assurez-vous que toutes les clés sont présentes
+        required_fields = ['pregnancies', 'glucose', 'bloodPressure', 'skinThickness', 'insulin', 'bmi', 'pedigree',
+                           'age']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing JSON fields'}), 400
+
+        # Convertir en DataFrame
+        user_data = {
+            'Pregnancies': [int(data['pregnancies'])],
+            'Glucose': [float(data['glucose'])],
+            'BloodPressure': [float(data['bloodPressure'])],
+            'SkinThickness': [float(data['skinThickness'])],
+            'Insulin': [float(data['insulin'])],
+            'BMI': [float(data['bmi'])],
+            'DiabetesPedigreeFunction': [float(data['pedigree'])],
+            'Age': [int(data['age'])]
+        }
+        user_df = pd.DataFrame(user_data)
+
+        # Faire une prédiction
+        prediction = model.predict(user_df)
+        result = "Diabetic" if prediction[0] == 1 else "Non-Diabetic"
+        print(prediction)
+        # Retourner le résultat en JSON
+        return jsonify({'result': result})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -174,79 +174,113 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-semibold mb-4">Diabetes Predictor</h5>
-            <form id="diabetesForm">
-              <div class="row">
-                  <!-- Partie gauche -->
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <label for="pregnancies" class="form-label">Nombre de grossesses (0-20)</label>
-                      <input type="number" class="form-control" id="pregnancies" min="0" max="20" required>
+            <form id="prediction-form" onsubmit="submitForm(event)">
+                <div class="row">
+                    <!-- Partie gauche -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="pregnancies" class="form-label">Nombre de grossesses (0-20)</label>
+                            <input type="number" class="form-control" id="pregnancies" min="0" max="20" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="glucose" class="form-label">Taux de glucose (mg/dL)</label>
+                            <input type="number" class="form-control" id="glucose" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bloodPressure" class="form-label">Tension artérielle (mmHg)</label>
+                            <input type="number" class="form-control" id="bloodPressure" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="skinThickness" class="form-label">Épaisseur de la peau (mm)</label>
+                            <input type="number" class="form-control" id="skinThickness" min="0" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                      <label for="glucose" class="form-label">Taux de glucose (mg/dL)</label>
-                      <input type="number" class="form-control" id="glucose" min="0" required>
+                    <!-- Partie droite -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="insulin" class="form-label">Taux d'insuline (μU/mL)</label>
+                            <input type="number" class="form-control" id="insulin" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bmi" class="form-label">Indice de masse corporelle (IMC)</label>
+                            <input type="number" class="form-control" id="bmi" step="0.1" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pedigree" class="form-label">Fonction Pedigree Diabète</label>
+                            <input type="number" class="form-control" id="pedigree" step="0.001" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="age" class="form-label">Âge</label>
+                            <input type="number" class="form-control" id="age" min="0" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                      <label for="bloodPressure" class="form-label">Tension artérielle (mmHg)</label>
-                      <input type="number" class="form-control" id="bloodPressure" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="skinThickness" class="form-label">Épaisseur de la peau (mm)</label>
-                      <input type="number" class="form-control" id="skinThickness" min="0" required>
-                    </div>
-                  </div>
-                  <!-- Partie droite -->
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <label for="insulin" class="form-label">Taux d'insuline (μU/mL)</label>
-                      <input type="number" class="form-control" id="insulin" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="bmi" class="form-label">Indice de masse corporelle (IMC)</label>
-                      <input type="number" class="form-control" id="bmi" step="0.1" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="pedigree" class="form-label">Fonction Pedigree Diabète</label>
-                      <input type="number" class="form-control" id="pedigree" step="0.01" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="age" class="form-label">Âge</label>
-                      <input type="number" class="form-control" id="age" min="0" required>
-                    </div>
-                  </div>
                 </div>
                 <div class="text-center mt-4">
-                  <button type="submit" class="btn btn-primary">Predict</button>
+                    <button type="submit" class="btn btn-primary">Predict</button>
                 </div>
             </form>
-            <div id="result" class="mt-4"></div>
+
+            <div id="result" class="text-center mt-4"></div>
           </div>
         </div>
       </div>
     </div>
   </div>
   <script>
-    document.getElementById("diabetesForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      // Collect the form data
-      const data = {
-        pregnancies: document.getElementById("pregnancies").value,
-        glucose: document.getElementById("glucose").value,
-        bloodPressure: document.getElementById("bloodPressure").value,
-        skinThickness: document.getElementById("skinThickness").value,
-        insulin: document.getElementById("insulin").value,
-        bmi: document.getElementById("bmi").value,
-        pedigree: document.getElementById("pedigree").value,
-        age: document.getElementById("age").value,
-      };
+    async function submitForm(event) {
+        event.preventDefault();
 
-      // Simulate prediction (replace this logic with actual model integration)
-      const isDiabetic = Math.random() > 0.5; // Replace with real logic
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = `<p class="alert alert-${isDiabetic ? 'danger' : 'success'}">
-        ${isDiabetic ? 'Positif au diabète' : 'Négatif au diabète'}
-      </p>`;
-    });
+        // Récupérer les valeurs des champs
+        const formData = {
+            pregnancies: document.getElementById('pregnancies').value,
+            glucose: document.getElementById('glucose').value,
+            bloodPressure: document.getElementById('bloodPressure').value,
+            skinThickness: document.getElementById('skinThickness').value,
+            insulin: document.getElementById('insulin').value,
+            bmi: document.getElementById('bmi').value,
+            pedigree: document.getElementById('pedigree').value,
+            age: document.getElementById('age').value
+        };
+
+        try {
+            // Envoyer une requête POST à votre API Flask
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            // Sélectionner l'élément où afficher le résultat
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            // Afficher un message flash basé sur le résultat
+            if (data.result === 'Diabetic') {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Résultat : Vous êtes diabétique.
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        Résultat : Vous n'êtes pas diabétique.
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Erreur lors de la prédiction:', error);
+            document.getElementById('result').innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    Une erreur est survenue. Veuillez réessayer.
+                </div>
+            `;
+        }
+    }
   </script>
   <script src="{{ url_for('static', filename='dashboard/libs/jquery/dist/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
