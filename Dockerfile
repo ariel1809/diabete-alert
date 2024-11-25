@@ -7,11 +7,12 @@ WORKDIR /diabete-alerte
 # Copier les fichiers nécessaires
 COPY . .
 
-# Installer les dépendances
+# Mettre à jour pip et installer les dépendances
+RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Exposer le port
+# Exposer le port (optionnel pour Render)
 EXPOSE 5000
 
 # Commande pour exécuter l'application
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:diabate-alerte"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
