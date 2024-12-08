@@ -12,4 +12,4 @@ class Config:
     MONGO_DB = os.getenv("MONGO_DB", "diabeteAlertDB")
 
     # URI MongoDB corrigé pour MongoDB Atlas
-    MONGO_URI = f"mongodb+srv://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}/{MONGO_DB}?retryWrites=true&w=majority"
+    MONGO_URI = f"mongodb+srv://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}/{MONGO_DB}?retryWrites=true&w=majority&tls=true"
