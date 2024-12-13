@@ -4,8 +4,9 @@ import datetime
 import joblib
 import pandas as pd
 from flask import render_template, Blueprint, request, jsonify, redirect, url_for, flash, session
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash
-from models.model import User, db  # Importer le modèle User et db
+from models.model import User, db, Prediction  # Importer le modèle User et db
 from functools import wraps
 
 # Clé secrète pour générer le JWT
@@ -137,6 +138,28 @@ def logout(user_id):
 def prediction(user_id):
     return render_template('prediction.html')
 
+def save_prediction_to_db(user_data, result):
+    """
+    Enregistre les données de la prédiction dans la base de données.
+    """
+    try:
+        prediction = Prediction(
+            pregnancies=user_data['Pregnancies'][0],
+            glucose=user_data['Glucose'][0],
+            blood_pressure=user_data['BloodPressure'][0],
+            skin_thickness=user_data['SkinThickness'][0],
+            insulin=user_data['Insulin'][0],
+            bmi=user_data['BMI'][0],
+            pedigree=user_data['DiabetesPedigreeFunction'][0],
+            age=user_data['Age'][0],
+            is_diabetic=(result == "Diabetic")
+        )
+        db.session.add(prediction)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        raise e
+
 @web.route("/predict", methods=["POST"])
 def predict():
     try:
@@ -163,7 +186,13 @@ def predict():
         prediction = model.predict(pd.DataFrame(user_data))
         result = "Diabetic" if prediction[0] == 1 else "Non-Diabetic"
 
+        # Enregistrer les données et le résultat dans la base de données
+        save_prediction_to_db(user_data, result)
+
         return jsonify({'result': result})
+
+    except SQLAlchemyError as e:
+        return jsonify({'error': 'Database error: ' + str(e)}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

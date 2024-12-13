@@ -21,3 +21,17 @@ class User(db.Model):
             'email': self.email,
             'is_logged_in': self.is_logged_in
         }
+
+
+class Prediction(db.Model):
+    __tablename__ = 'predictions'
+    id = db.Column(db.Integer, primary_key=True)
+    pregnancies = db.Column(db.Integer, nullable=False)
+    glucose = db.Column(db.Float, nullable=False)
+    blood_pressure = db.Column(db.Float, nullable=False)
+    skin_thickness = db.Column(db.Float, nullable=False)
+    insulin = db.Column(db.Float, nullable=False)
+    bmi = db.Column(db.Float, nullable=False)
+    pedigree = db.Column(db.Float, nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    is_diabetic = db.Column(db.Boolean, nullable=False)
