@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash
 from models.model import User, db, Prediction  # Importer le modèle User et db
 from functools import wraps
+from scipy.special import expit
 
 # Clé secrète pour générer le JWT
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_key_for_dev')
@@ -112,11 +113,31 @@ def token_required(f):
 @web.route('/index')
 @token_required
 def index(user_id):
+    # Récupérer toutes les données des patients depuis la base de données
+    patients = Prediction.query.all()
+
+    # Préparer les données pour le tableau
+    patient_data = [
+        {
+            "id": patient.id,
+            "pregnancies": patient.pregnancies,
+            "glucose": patient.glucose,
+            "blood_pressure": patient.blood_pressure,
+            "skin_thickness": patient.skin_thickness,
+            "insulin": patient.insulin,
+            "bmi": patient.bmi,
+            "pedigree": patient.pedigree,
+            "age": patient.age,
+            "is_diabetic": "Yes" if patient.is_diabetic else "No"
+        }
+        for patient in patients
+    ]
+
     # Récupérer les statistiques
     diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=True).count()
     non_diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=False).count()
 
-    return render_template('index.html', user_id=user_id, diabetic_count=diabetic_count, non_diabetic_count=non_diabetic_count)
+    return render_template('index.html', user_id=user_id, diabetic_count=diabetic_count, non_diabetic_count=non_diabetic_count, patient_data=patient_data)
 
 @web.route('/logout')
 @token_required
@@ -186,17 +207,26 @@ def predict():
             'Age': [int(data['age'])]
         }
 
-        # Faire une prédiction (utilisez votre modèle ML ici)
-        prediction = model.predict(pd.DataFrame(user_data))
-        result = "Diabetic" if prediction[0] == 1 else "Non-Diabetic"
+        user_df = pd.DataFrame(user_data)
 
-        # Enregistrer les données et le résultat dans la base de données
+        # Obtenir les scores de décision
+        decision_scores = model.decision_function(user_df)
+
+        # Transformer en pseudo-probabilités
+        prob_diabetic = expit(decision_scores[0])  # Probabilité d'être Diabetic
+        prob_non_diabetic = 1 - prob_diabetic      # Probabilité d'être Non-Diabetic
+
+        # Résultat basé sur le score
+        result = "Diabetic" if prob_diabetic > 0.5 else "Non-Diabetic"
+
+        # Enregistrer dans la base de données
         save_prediction_to_db(user_data, result)
 
-        return jsonify({'result': result})
-
-    except SQLAlchemyError as e:
-        return jsonify({'error': 'Database error: ' + str(e)}), 500
+        return jsonify({
+            'result': result,
+            'probability_diabetic': f"{prob_diabetic * 100:.2f}%",
+            'probability_non_diabetic': f"{prob_non_diabetic * 100:.2f}%"
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

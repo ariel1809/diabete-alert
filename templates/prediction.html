@@ -258,17 +258,19 @@
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = '';
 
-            // Afficher un message flash basé sur le résultat
+            // Vérifier les probabilités et afficher le message avec le pourcentage
             if (data.result === 'Diabetic') {
                 resultDiv.innerHTML = `
                     <div class="alert alert-danger" role="alert">
-                        Résultat : Vous êtes diabétique.
+                        Résultat : Vous êtes diabétique avec un risque de
+                        <strong>${data.probability_diabetic}</strong>.
                     </div>
                 `;
             } else {
                 resultDiv.innerHTML = `
                     <div class="alert alert-success" role="alert">
-                        Résultat : Vous n'êtes pas diabétique.
+                        Résultat : Vous n'êtes pas diabétique avec une chance de
+                        <strong>${data.probability_non_diabetic}</strong>.
                     </div>
                 `;
             }
@@ -281,7 +283,7 @@
             `;
         }
     }
-  </script>
+</script>
   <script src="{{ url_for('static', filename='dashboard/libs/jquery/dist/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard/js/sidebarmenu.js') }}"></script>
