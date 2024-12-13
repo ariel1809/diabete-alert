@@ -112,7 +112,11 @@ def token_required(f):
 @web.route('/index')
 @token_required
 def index(user_id):
-    return render_template('index.html', user_id=user_id)
+    # Récupérer les statistiques
+    diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=True).count()
+    non_diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=False).count()
+
+    return render_template('index.html', user_id=user_id, diabetic_count=diabetic_count, non_diabetic_count=non_diabetic_count)
 
 @web.route('/logout')
 @token_required
@@ -198,3 +202,16 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 
+@web.route("/stats", methods=["POST"])
+def get_stats():
+    try:
+        # Compter les patients diabétiques et non diabétiques
+        diabetic_count = db.session.query(User).filter_by(is_diabetic=True).count()
+        non_diabetic_count = db.session.query(User).filter_by(is_diabetic=False).count()
+
+        return jsonify({
+            "diabetic_count": diabetic_count,
+            "non_diabetic_count": non_diabetic_count
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
