@@ -24,6 +24,10 @@ web = Blueprint('web', __name__)
 def accueil():
     return render_template("accueil.html")
 
+@web.route('/data')
+def data():
+    return render_template("data.html")
+
 @web.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -245,3 +249,23 @@ def get_stats():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+#route pour afficher le diagramme
+@web.route('/stats/chart')
+@token_required
+def stats_chart():
+    try:
+        # Récupérer les statistiques depuis la base de données
+        diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=True).count()
+        non_diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=False).count()
+
+        # Passer les données à la page HTML
+        return render_template(
+            'index.html',
+            diabetic_count=diabetic_count,
+            non_diabetic_count=non_diabetic_count
+        )
+    except Exception as e:
+        flash('Erreur lors de la récupération des statistiques', 'danger')
+        return redirect(url_for('web.index'))

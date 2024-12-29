@@ -47,27 +47,11 @@
               <span class="hide-menu">DIABETE</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="ui-buttons.html" aria-expanded="false">
-                <span>
-                  <i class="ti ti-article"></i>
-                </span>
-                <span class="hide-menu">Data</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="ui-alerts.html" aria-expanded="false">
-                <span>
-                  <i class="ti ti-alert-circle"></i>
-                </span>
-                <span class="hide-menu">Alerts</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="ui-card.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{ url_for('web.data') }}" aria-expanded="false">
                 <span>
                   <i class="ti ti-cards"></i>
                 </span>
-                <span class="hide-menu">Card</span>
+                <span class="hide-menu">Data</span>
               </a>
             </li>
             <li class="sidebar-item">
@@ -76,34 +60,6 @@
                   <i class="ti ti-file-description"></i>
                 </span>
                 <span class="hide-menu">Prediction</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="ui-typography.html" aria-expanded="false">
-                <span>
-                  <i class="ti ti-typography"></i>
-                </span>
-                <span class="hide-menu">Typography</span>
-              </a>
-            </li>
-            <li class="nav-small-cap">
-              <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">EXTRA</span>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="icon-tabler.html" aria-expanded="false">
-                <span>
-                  <i class="ti ti-mood-happy"></i>
-                </span>
-                <span class="hide-menu">Icons</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="sample-page.html" aria-expanded="false">
-                <span>
-                  <i class="ti ti-aperture"></i>
-                </span>
-                <span class="hide-menu">Sample Page</span>
               </a>
             </li>
           </ul>
@@ -176,75 +132,36 @@
       <div class="container-fluid">
         <!--  Row 1 -->
         <div class="row">
-          <div class="col-lg-8 d-flex align-items-strech">
+          <div class="col-lg-8 d-flex align-items-stretch">
             <div class="card w-100">
               <div class="card-body">
-                <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
-                  <div class="mb-3 mb-sm-0">
-                    <h5 class="card-title fw-semibold">Sales Overview</h5>
-                  </div>
-                  <div>
-                      <label>
-                          <select class="form-select">
-                            <option value="1">March 2023</option>
-                            <option value="2">April 2023</option>
-                            <option value="3">May 2023</option>
-                            <option value="4">June 2023</option>
-                          </select>
-                      </label>
-                  </div>
-                </div>
-                <div id="chart"></div>
+                <h5 class="card-title fw-semibold mb-4">Sales Overview</h5>
+                <canvas id="statsChart" width="400" height="200"></canvas>
               </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card overflow-hidden">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Patients Non-Diabétiques</h5>
-                    <div class="row align-items-center">
-                      <div class="col-8">
-                        <h4 class="fw-semibold mb-3">{{ non_diabetic_count }}</h4>
-                        <div class="d-flex align-items-center">
-                          <p class="fs-3 mb-0">Total des patients</p>
-                        </div>
-                      </div>
-                      <div class="col-4">
-                        <div class="d-flex justify-content-center">
-                          <div class="text-white bg-success rounded-circle p-6 d-flex align-items-center justify-content-center">
-                            <i class="ti ti-user-check fs-6"></i>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
+          <div class="col-lg-4 d-flex flex-column">
+            <div class="card mb-4">
+              <div class="card-body text-center">
+                <h5 class="card-title fw-semibold">Patients Non-Diabétiques</h5>
+                <h4 class="fw-bold text-success mb-2">{{ non_diabetic_count }}</h4>
+                <p class="fs-5">Total des patients</p>
+                <div class="bg-success text-white rounded-circle p-4 mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                  <i class="ti ti-user-check fs-4"></i>
                 </div>
               </div>
-              </div>
-                <div class="col-lg-12">
-                  <div class="card overflow-hidden">
-                    <div class="card-body p-4">
-                      <h5 class="card-title mb-9 fw-semibold">Patients Diabétiques</h5>
-                      <div class="row align-items-center">
-                        <div class="col-8">
-                          <h4 class="fw-semibold mb-3">{{ diabetic_count }}</h4>
-                          <div class="d-flex align-items-center">
-                            <p class="fs-3 mb-0">Total des patients</p>
-                          </div>
-                        </div>
-                        <div class="col-4">
-                          <div class="d-flex justify-content-center">
-                            <div class="text-white bg-danger rounded-circle p-6 d-flex align-items-center justify-content-center">
-                              <i class="ti ti-user-minus fs-6"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body text-center">
+                <h5 class="card-title fw-semibold">Patients Diabétiques</h5>
+                <h4 class="fw-bold text-danger mb-2">{{ diabetic_count }}</h4>
+                <p class="fs-5">Total des patients</p>
+                <div class="bg-danger text-white rounded-circle p-4 mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                  <i class="ti ti-user-minus fs-4"></i>
                 </div>
+              </div>
             </div>
           </div>
         </div>
@@ -401,6 +318,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
         $(document).ready(function() {
             $('table').DataTable({
@@ -408,6 +326,41 @@
             });
         });
     </script>
+
+<script>
+    // Récupérer les données depuis Flask (passées via render_template)
+    const diabeticCount = {{ diabetic_count }};
+    const nonDiabeticCount = {{ non_diabetic_count }};
+
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    const statsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Diabétiques', 'Non-Diabétiques'],
+            datasets: [{
+                label: 'Nombre de Patients',
+                data: [diabeticCount, nonDiabeticCount],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',  // Diabétiques
+                    'rgba(75, 192, 192, 0.5)'   // Non-Diabétiques
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 </body>
 
 </html>

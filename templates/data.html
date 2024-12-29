@@ -127,119 +127,90 @@
       </header>
       <!--  Header End -->
       <div class="container-fluid">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Diabetes Predictor</h5>
-            <form id="prediction-form" onsubmit="submitForm(event)">
-                <div class="row">
-                    <!-- Partie gauche -->
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="pregnancies" class="form-label">Nombre de grossesses (0-20)</label>
-                            <input type="number" class="form-control" id="pregnancies" min="0" max="20" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="glucose" class="form-label">Taux de glucose (mg/dL)</label>
-                            <input type="number" class="form-control" id="glucose" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="bloodPressure" class="form-label">Tension artérielle (mmHg)</label>
-                            <input type="number" class="form-control" id="bloodPressure" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="skinThickness" class="form-label">Épaisseur de la peau (mm)</label>
-                            <input type="number" class="form-control" id="skinThickness" min="0" required>
-                        </div>
-                    </div>
-                    <!-- Partie droite -->
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="insulin" class="form-label">Taux d'insuline (μU/mL)</label>
-                            <input type="number" class="form-control" id="insulin" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="bmi" class="form-label">Indice de masse corporelle (IMC)</label>
-                            <input type="number" class="form-control" id="bmi" step="0.1" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="pedigree" class="form-label">Fonction Pedigree Diabète</label>
-                            <input type="number" class="form-control" id="pedigree" step="0.001" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="age" class="form-label">Âge</label>
-                            <input type="number" class="form-control" id="age" min="0" required>
-                        </div>
-                    </div>
+          <div class="row">
+            <!-- Glucose -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Glucose</h5>
+                  <p class="card-text">Le glucose est un indicateur important du diabète. Des niveaux élevés peuvent signaler une hyperglycémie.</p>
                 </div>
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary">Predict</button>
-                </div>
-            </form>
+              </div>
+            </div>
 
-            <div id="result" class="text-center mt-4"></div>
-          </div>
+            <!-- Blood Pressure -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Blood Pressure</h5>
+                  <p class="card-text">La pression artérielle élevée peut augmenter le risque de complications du diabète et affecter le coeur et les reins.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- BMI -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">BMI</h5>
+                  <p class="card-text">L'indice de masse corporelle (BMI) est utilisé pour évaluer si une personne est en surpoids, un facteur de risque majeur pour le diabète.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insulin -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Insulin</h5>
+                  <p class="card-text">L'insuline est essentielle pour réguler le glucose sanguin. Un faible taux peut indiquer un diabète de type 1 ou 2.</p>
+                </div>
+              </div>
+            </div>
+
+              <!-- Pregnancies -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Pregnancies</h5>
+          <p class="card-text">Un nombre élevé de grossesses peut augmenter le risque de diabète gestationnel.</p>
         </div>
       </div>
     </div>
-  </div>
-  <script>
-    async function submitForm(event) {
-        event.preventDefault();
 
-        // Récupérer les valeurs des champs
-        const formData = {
-            pregnancies: document.getElementById('pregnancies').value,
-            glucose: document.getElementById('glucose').value,
-            bloodPressure: document.getElementById('bloodPressure').value,
-            skinThickness: document.getElementById('skinThickness').value,
-            insulin: document.getElementById('insulin').value,
-            bmi: document.getElementById('bmi').value,
-            pedigree: document.getElementById('pedigree').value,
-            age: document.getElementById('age').value
-        };
+    <!-- Skin Thickness -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Skin Thickness</h5>
+          <p class="card-text">L'épaisseur du pli cutané est utilisée pour estimer la graisse corporelle.</p>
+        </div>
+      </div>
+    </div>
 
-        try {
-            // Envoyer une requête POST à votre API Flask
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+    <!-- Pedigree -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Diabetes Pedigree</h5>
+          <p class="card-text">Le pedigree du diabète indique la probabilité de diabète en fonction des antécédents familiaux.</p>
+        </div>
+      </div>
+    </div>
 
-            const data = await response.json();
-
-            // Sélectionner l'élément où afficher le résultat
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '';
-
-            // Vérifier les probabilités et afficher le message avec le pourcentage
-            if (data.result === 'Diabetic') {
-                resultDiv.innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        Résultat : Vous êtes diabétique avec un risque de
-                        <strong>${data.probability_diabetic}</strong>.
-                    </div>
-                `;
-            } else {
-                resultDiv.innerHTML = `
-                    <div class="alert alert-success" role="alert">
-                        Résultat : Vous n'êtes pas diabétique avec une chance de
-                        <strong>${data.probability_non_diabetic}</strong>.
-                    </div>
-                `;
-            }
-        } catch (error) {
-            console.error('Erreur lors de la prédiction:', error);
-            document.getElementById('result').innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    Une erreur est survenue. Veuillez réessayer.
+            <!-- Age -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Age</h5>
+                  <p class="card-text">L'âge avancé est un facteur de risque pour le diabète. Les personnes de plus de 45 ans sont plus susceptibles de développer cette maladie.</p>
                 </div>
-            `;
-        }
-    }
-</script>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
   <script src="{{ url_for('static', filename='dashboard/libs/jquery/dist/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard/js/sidebarmenu.js') }}"></script>
