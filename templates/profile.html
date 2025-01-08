@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profil Utilisateur - DiabeteAlert</title>
+  <link href="{{ url_for('static', filename='dashboard/images/logos/logoweb.png') }}" rel="shortcut icon" type="image/png">
+  <link href="{{ url_for('static', filename='dashboard/css/styles.min.css') }}" rel="stylesheet">
+</head>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+
+    {% block sidebar %}
+      {% include 'sidebar.html' %}
+    {% endblock %}
+
+    <div class="body-wrapper">
+      {% block navbar %}
+        {% include 'navbar.html' %}
+      {% endblock %}
+      <div class="container-fluid">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold mb-4">Mon Profil</h5>
+
+            <!-- Affichage de la photo de profil et des informations -->
+            <div class="text-center mb-4">
+              <img src="{{ url_for('static', filename=user.profile_image) }}" alt="Photo de profil" class="rounded-circle" width="150">
+              <h3 class="mt-3">{{ user.name }}</h3>
+              <p>{{ user.email }}</p>
+            </div>
+
+            <!-- Formulaire pour changer la photo de profil -->
+            <h5 class="mt-4">Changer la photo de profil</h5>
+            <form method="POST" action="{{ url_for('web.change_profile_picture') }}" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="profile-picture" class="form-label">Télécharger une nouvelle photo de profil</label>
+                <input type="file" id="profile-picture" name="profile_picture" class="form-control" accept="image/*" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Changer la photo</button>
+            </form>
+
+            <!-- Formulaire pour modifier le mot de passe -->
+            <h5 class="mt-5">Modifier le mot de passe</h5>
+            <form method="POST" action="{{ url_for('web.change_password') }}">
+              <div class="mb-3">
+                <label for="current-password" class="form-label">Mot de passe actuel</label>
+                <input type="password" id="current-password" name="current_password" class="form-control" placeholder="Entrez le mot de passe actuel" required>
+              </div>
+              <div class="mb-3">
+                <label for="new-password" class="form-label">Nouveau mot de passe</label>
+                <input type="password" id="new-password" name="new_password" class="form-control" placeholder="Entrez le nouveau mot de passe" required>
+              </div>
+              <div class="mb-3">
+                <label for="confirm-password" class="form-label">Confirmer le mot de passe</label>
+                <input type="password" id="confirm-password" name="confirm_password" class="form-control" placeholder="Confirmer le nouveau mot de passe" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Modifier le mot de passe</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='dashboard/libs/jquery/dist/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='dashboard/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='dashboard/js/sidebarmenu.js') }}"></script>
+  <script src="{{ url_for('static', filename='dashboard/js/app.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='dashboard/libs/simplebar/dist/simplebar.js') }}"></script>
+</body>
+
+</html>

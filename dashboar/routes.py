@@ -6,6 +6,8 @@ import pandas as pd
 from flask import render_template, Blueprint, request, jsonify, redirect, url_for, flash, session
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
+
 from models.model import User, db, Prediction  # Importer le modèle User et db
 from functools import wraps
 from scipy.special import expit
@@ -13,6 +15,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -124,16 +127,19 @@ def register():
         password = form_data.get('password')
         confirm_password = form_data.get('confirm_password')
 
+        # Vérification de la correspondance des mots de passe
         if password != confirm_password:
             flash('Les mots de passe ne correspondent pas.', 'danger')
             return render_template('authentication-register.html', form_data=form_data)
 
+        # Vérification si l'email est déjà utilisé
         if User.query.filter_by(email=email).first():
             flash('Cet email est déjà utilisé.', 'danger')
             return render_template('authentication-register.html', form_data=form_data)
 
-        # Ajouter l'utilisateur
-        user = User(name=name, email=email, password=password)
+        # Ajouter l'utilisateur avec une photo de profil par défaut
+        default_profile_image = 'dashboard/images/profile/user-1.jpg'
+        user = User(name=name, email=email, password=password, profile_image=default_profile_image)
         db.session.add(user)
         db.session.commit()
 
@@ -171,6 +177,9 @@ def token_required(f):
 @web.route('/index')
 @token_required
 def index(user_id):
+    # Récupérer l'utilisateur en fonction de l'ID
+    user = User.query.get(user_id)
+
     # Récupérer toutes les données des patients depuis la base de données
     patients = Prediction.query.all()
 
@@ -195,8 +204,13 @@ def index(user_id):
     diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=True).count()
     non_diabetic_count = db.session.query(Prediction).filter_by(is_diabetic=False).count()
 
-    return render_template('index.html', user_id=user_id, diabetic_count=diabetic_count, non_diabetic_count=non_diabetic_count, patient_data=patient_data)
-
+    return render_template(
+        'index.html',
+        user=user,  # Passer l'objet 'user' au template
+        diabetic_count=diabetic_count,
+        non_diabetic_count=non_diabetic_count,
+        patient_data=patient_data
+    )
 @web.route('/logout')
 @token_required
 def logout(user_id):
@@ -324,3 +338,98 @@ def stats_chart():
     except Exception as e:
         flash('Erreur lors de la récupération des statistiques', 'danger')
         return redirect(url_for('web.index'))
+
+
+# Route pour afficher et modifier le profil de l'utilisateur
+@web.route('/profile', methods=['GET', 'POST'])
+@token_required
+def profile(user_id):
+    user = User.query.get(user_id)
+
+    # Vérification si l'utilisateur a une image de profil, sinon on assigne une image par défaut
+    if not user.profile_image:
+        user.profile_image = 'dashboard/images/profile/user-1.jpg'
+
+    if request.method == 'POST':
+        # Récupérer les données du formulaire pour modifier le profil
+        name = request.form.get('name')
+        email = request.form.get('email')
+        image = request.files.get('image')
+
+        # Vérifier si l'image a été téléchargée
+        if image:
+            image_path = os.path.join('static', 'profile_images', image.filename)
+            image.save(image_path)
+            user.profile_image = image_path
+
+        # Mettre à jour les informations de l'utilisateur
+        if name:
+            user.name = name
+        if email:
+            user.email = email
+
+        db.session.commit()
+        flash('Votre profil a été mis à jour avec succès.', 'success')
+        return redirect(url_for('web.profile'))
+
+    return render_template('profile.html', user=user)
+
+# Route pour changer le mot de passe
+@web.route('/change_password', methods=['POST'])
+@token_required
+def change_password(user_id):
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    user = User.query.get(user_id)
+
+    if not check_password_hash(user.password, current_password):
+        flash("Le mot de passe actuel est incorrect", "danger")
+        return redirect(url_for('web.profile'))
+
+    if new_password != confirm_password:
+        flash("Les mots de passe ne correspondent pas", "danger")
+        return redirect(url_for('web.profile'))
+
+    # Mise à jour du mot de passe
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    flash("Mot de passe modifié avec succès", "success")
+    return redirect(url_for('web.profile'))
+
+# Route pour changer la photo de profil
+@web.route('/change_profile_picture', methods=['POST'])
+@token_required
+def change_profile_picture(user_id):
+    user = User.query.get(user_id)
+    file = request.files.get('profile_picture')
+
+    if file:
+        filename = secure_filename(file.filename)
+
+        # Vérifier si le répertoire existe, sinon le créer
+        profile_pictures_dir = 'static/dashboard/images/profile'
+        dir = 'dashboard/images/profile'
+        if not os.path.exists(profile_pictures_dir):
+            os.makedirs(profile_pictures_dir)
+
+        # Si un fichier de profil existe déjà, supprimer l'ancienne image
+        if user.profile_image:
+            old_picture_path = os.path.join(profile_pictures_dir, user.profile_image)
+            if os.path.exists(old_picture_path):
+                os.remove(old_picture_path)
+
+        # Sauvegarder le fichier téléchargé dans le répertoire
+        file.save(os.path.join(profile_pictures_dir, filename))
+
+        # Mise à jour du chemin de la photo de profil dans la base de données
+        user.profile_image = dir + "/"+ filename
+        db.session.commit()
+
+        flash("Photo de profil modifiée avec succès", "success")
+    else:
+        flash("Veuillez télécharger un fichier", "danger")
+
+    return redirect(url_for('web.profile'))
