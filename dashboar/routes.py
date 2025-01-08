@@ -16,6 +16,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
+from flask_login import current_user
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -79,11 +80,6 @@ def send_mail():
     except Exception as e:
         flash(f'Erreur lors de l\'envoi du message : {str(e)}', 'danger')
         return redirect(url_for('web.accueil'))
-
-
-@web.route('/data')
-def data():
-    return render_template("data.html")
 
 @web.route('/login', methods=['GET', 'POST'])
 def login():
@@ -233,7 +229,8 @@ def logout(user_id):
 @web.route('/prediction')
 @token_required
 def prediction(user_id):
-    return render_template('prediction.html')
+    user = User.query.get(user_id)
+    return render_template('prediction.html', user=user)
 
 def save_prediction_to_db(user_data, result):
     """
@@ -303,6 +300,11 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@web.route('/data')
+@token_required
+def data(user_id):
+    user = User.query.get(user_id)
+    return render_template("data.html", user=user)
 
 @web.route("/stats", methods=["POST"])
 @token_required
