@@ -9,9 +9,24 @@ from werkzeug.security import check_password_hash
 from models.model import User, db, Prediction  # Importer le modèle User et db
 from functools import wraps
 from scipy.special import expit
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Clé secrète pour générer le JWT
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_key_for_dev')
+
+# Récupérer les configurations
+SMTP_SERVER = os.getenv('SMTP_SERVER')
+SMTP_PORT = int(os.getenv('SMTP_PORT'))
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+TO_EMAILS = os.getenv('TO_EMAILS').split(',')
+
 
 # Charger le modèle ML
 model = joblib.load("diabetes.pkl")
@@ -23,6 +38,45 @@ web = Blueprint('web', __name__)
 @web.route('/')
 def accueil():
     return render_template("accueil.html")
+
+@web.route('/send_mail', methods=['POST'])
+def send_mail():
+    try:
+        # Récupération des données du formulaire
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        date = request.form.get('date')
+        message = request.form.get('message')
+
+        # Création de l'email
+        msg = MIMEMultipart()
+        msg['From'] = email  # L'email de l'utilisateur
+        msg['To'] = ', '.join(TO_EMAILS)
+        msg['Subject'] = f'Nouveau message de {name}'
+
+        body = f"""
+        Nom: {name}
+        Email: {email}
+        Téléphone: {phone if phone else 'Non renseigné'}
+        Date: {date if date else 'Non renseignée'}
+        Message: {message}
+        """
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Envoi de l'email
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            server.sendmail(email, TO_EMAILS, msg.as_string())
+
+        flash('Votre message a été envoyé avec succès.', 'success')
+        return redirect(url_for('web.accueil'))
+
+    except Exception as e:
+        flash(f'Erreur lors de l\'envoi du message : {str(e)}', 'danger')
+        return redirect(url_for('web.accueil'))
+
 
 @web.route('/data')
 def data():
@@ -237,6 +291,7 @@ def predict():
 
 
 @web.route("/stats", methods=["POST"])
+@token_required
 def get_stats():
     try:
         # Compter les patients diabétiques et non diabétiques
