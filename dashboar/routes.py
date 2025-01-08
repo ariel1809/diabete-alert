@@ -1,22 +1,22 @@
-import os
-import jwt
 import datetime
+import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from functools import wraps
+
 import joblib
+import jwt
 import pandas as pd
+from dotenv import load_dotenv
 from flask import render_template, Blueprint, request, jsonify, redirect, url_for, flash, session
+from scipy.special import expit
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 
 from models.model import User, db, Prediction  # Importer le modèle User et db
-from functools import wraps
-from scipy.special import expit
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash
-from flask_login import current_user
 
 # Charger les variables d'environnement
 load_dotenv()
